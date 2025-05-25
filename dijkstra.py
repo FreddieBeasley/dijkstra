@@ -1,7 +1,5 @@
 from graph import *
 
-#Not used in the end
-
 class DijkstraVertex(Vertex):
      def __init__(self, lable, order, count, path=None):
           super().__init__(lable)
@@ -34,8 +32,14 @@ class Queue:
 
      def add(self, dijkstraVertex):
           self.__discovered.append(dijkstraVertex)
+
+     def add_resolved(self, dijkstraVertex):
+          self.__resolved.append(dijkstraVertex)
+
+     def remove(self, dijkstraVertex):
+          self.__discovered.remove(dijkstraVertex)
      
-     def pop(self): #returns the DikstraItem with the lowest count
+     def pop(self): #returns the dijkstraVertex with the lowest count
           lowest = 100
           returnItem = None
 
@@ -102,15 +106,15 @@ def dijkstra(graph:Graph, startVertex:Vertex, endVertex:Vertex = None) -> list:
           if len(queue) == 0:
                break
 
-          currentDijkstraItem = queue.pop()
-          currentDijkstraItem.update_order(order)
+          currentDijkstraVertex = queue.pop()
+          currentDijkstraVertex.update_order(order)
 
           #Base base - specific vertex is next to resolve
           if specific:
-               if currentDijkstraItem.get_lable() == endVertex.get_lable():
+               if currentDijkstraVertex.get_lable() == endVertex.get_lable():
                     break
 
-          for vertex_lable, path_weight in graph.get_adjacency_list()[currentDijkstraItem.get_lable()]:
+          for vertex_lable, path_weight in graph.get_adjacency_list()[currentDijkstraVertex.get_lable()]:
                
                if queue.lookUp_dijkstraVertex_resolved(vertex_lable) is not None:
                     continue
@@ -118,22 +122,22 @@ def dijkstra(graph:Graph, startVertex:Vertex, endVertex:Vertex = None) -> list:
                elif queue.lookUp_dijkstraVertex(vertex_lable) is not None:
                     consideringDijkstraVertex = queue.lookUp_dijkstraVertex(vertex_lable)
 
-                    new_count = currentDijkstraItem.get_count() + path_weight
+                    new_count = currentDijkstraVertex.get_count() + path_weight
                     old_count = consideringDijkstraVertex.get_count()
 
                     if old_count > new_count:
                          consideringDijkstraVertex.update_count(new_count)
-                         consideringDijkstraVertex.update_path(currentDijkstraItem.get_path() + consideringDijkstraVertex.get_lable())
+                         consideringDijkstraVertex.update_path(currentDijkstraVertex.get_path() + consideringDijkstraVertex.get_lable())
 
                else:
                     discoveredDijkstraVertex = DijkstraVertex(
                          lable=vertex_lable,
                          order=None,
-                         count=currentDijkstraItem.get_count() + path_weight
+                         count=currentDijkstraVertex.get_count() + path_weight
                     )
 
                     queue.add(discoveredDijkstraVertex)
-                    discoveredDijkstraVertex.update_path(currentDijkstraItem.get_path() + discoveredDijkstraVertex.get_lable())
+                    discoveredDijkstraVertex.update_path(currentDijkstraVertex.get_path() + discoveredDijkstraVertex.get_lable())
                
      if specific:
           if queue.lookUp_dijkstraVertex_resolved(endVertex.get_lable()) == None: #end vertex has not been found
@@ -144,42 +148,43 @@ def dijkstra(graph:Graph, startVertex:Vertex, endVertex:Vertex = None) -> list:
      
      return [[f"vertex: {item.get_lable()}", f"order: {item.get_order()}", f"cost: {item.get_count()}", f"path: {item.get_path()}"] for item in queue.get_resolved()]
 
-# --- Test 1: my_graph ---
-print("\n--- Test 1: my_graph ---")
-print(dijkstra(my_graph, vertexA, vertexC))
-print("\n")
-print(dijkstra(my_graph, vertexA))
-print("\n")
-print(dijkstra(my_graph, vertexB))
+def test_dijkstra():
+     # --- Test 1: my_graph ---
+     print("\n--- Test 1: my_graph ---")
+     print(dijkstra(my_graph, vertexA, vertexC))
+     print("\n")
+     print(dijkstra(my_graph, vertexA))
+     print("\n")
+     print(dijkstra(my_graph, vertexB))
 
-# --- Test 2: circular_graph ---
-print("\n--- Test 2: circular_graph ---")
-print(dijkstra(circular_graph, vertexA, vertexE))
-print("\n")
-print(dijkstra(circular_graph, vertexC))
-print("\n")
-print(dijkstra(circular_graph, vertexF))
+     # --- Test 2: circular_graph ---
+     print("\n--- Test 2: circular_graph ---")
+     print(dijkstra(circular_graph, vertexA, vertexE))
+     print("\n")
+     print(dijkstra(circular_graph, vertexC))
+     print("\n")
+     print(dijkstra(circular_graph, vertexF))
 
-# --- Test 3: linear_graph ---
-print("\n--- Test 3: linear_graph ---")
-print(dijkstra(linear_graph, vertexA, vertexG))
-print("\n")
-print(dijkstra(linear_graph, vertexD))
-print("\n")
-print(dijkstra(linear_graph, vertexB))
+     # --- Test 3: linear_graph ---
+     print("\n--- Test 3: linear_graph ---")
+     print(dijkstra(linear_graph, vertexA, vertexG))
+     print("\n")
+     print(dijkstra(linear_graph, vertexD))
+     print("\n")
+     print(dijkstra(linear_graph, vertexB))
 
-# --- Test 4: tree_graph ---
-print("\n--- Test 4: tree_graph ---")
-print(dijkstra(tree_graph, vertexA, vertexE))
-print("\n")
-print(dijkstra(tree_graph, vertexB))
-print("\n")
-print(dijkstra(tree_graph, vertexC))
+     # --- Test 4: tree_graph ---
+     print("\n--- Test 4: tree_graph ---")
+     print(dijkstra(tree_graph, vertexA, vertexE))
+     print("\n")
+     print(dijkstra(tree_graph, vertexB))
+     print("\n")
+     print(dijkstra(tree_graph, vertexC))
 
-# --- Test 5: disconnected_graph ---
-print("\n--- Test 5: disconnected_graph ---")
-print(dijkstra(disconnected_graph, vertexA, vertexF))
-print("\n")
-print(dijkstra(disconnected_graph, vertexA))
-print("\n")
-print(dijkstra(disconnected_graph, vertexH))
+     # --- Test 5: disconnected_graph ---
+     print("\n--- Test 5: disconnected_graph ---")
+     print(dijkstra(disconnected_graph, vertexA, vertexF))
+     print("\n")
+     print(dijkstra(disconnected_graph, vertexA))
+     print("\n")
+     print(dijkstra(disconnected_graph, vertexH))
