@@ -62,13 +62,20 @@ class Graph:
                     return vertex
           return None
 
-my_graph = Graph()
+#----graphs-for-testing----
 
+#vertices
 vertexA = Vertex("a")
 vertexB = Vertex("b")
 vertexC = Vertex("c")
 vertexD = Vertex("d")
 vertexE = Vertex("e")
+vertexF = Vertex("f")
+vertexG = Vertex("g")
+vertexH = Vertex("h")
+
+#graph1 - original graph
+my_graph = Graph()
 
 my_graph.add_vertex(vertexA)
 my_graph.add_vertex(vertexB)
@@ -84,19 +91,75 @@ my_graph.add_edge(Edge(4,vertexC, vertexD))
 my_graph.add_edge(Edge(6,vertexC, vertexE))
 my_graph.add_edge(Edge(5,vertexD, vertexE))
 
-print(my_graph.get_adjacency_list())
+#graph2 - circular graph
+circular_graph = Graph()
+
+circular_graph.add_vertex(vertexA)
+circular_graph.add_vertex(vertexB)
+circular_graph.add_vertex(vertexC)
+circular_graph.add_vertex(vertexD)
+circular_graph.add_vertex(vertexE)
+circular_graph.add_vertex(vertexF)
+
+circular_graph.add_edge(Edge(3,vertexA,vertexB))
+circular_graph.add_edge(Edge(3,vertexB,vertexC))
+circular_graph.add_edge(Edge(3,vertexC,vertexD))
+circular_graph.add_edge(Edge(3,vertexD,vertexE))
+circular_graph.add_edge(Edge(3,vertexE,vertexF))
+circular_graph.add_edge(Edge(3,vertexF,vertexA))
+
+#graph3 - linear graph
+linear_graph = Graph()
+
+linear_graph.add_vertex(vertexA)
+linear_graph.add_vertex(vertexB)
+linear_graph.add_vertex(vertexC)
+linear_graph.add_vertex(vertexD)
+linear_graph.add_vertex(vertexE)
+linear_graph.add_vertex(vertexF)
+
+linear_graph.add_edge(Edge(3,vertexA,vertexB))
+linear_graph.add_edge(Edge(1,vertexB,vertexC))
+linear_graph.add_edge(Edge(4,vertexC,vertexD))
+linear_graph.add_edge(Edge(1,vertexD,vertexE))
+linear_graph.add_edge(Edge(5,vertexE,vertexF))
+
+#graph4 - tree graph
+tree_graph = Graph()
+
+tree_graph.add_vertex(vertexA)
+tree_graph.add_vertex(vertexB)
+tree_graph.add_vertex(vertexC)
+tree_graph.add_vertex(vertexD)
+tree_graph.add_vertex(vertexE)
+tree_graph.add_vertex(vertexF)
+tree_graph.add_vertex(vertexG)
+tree_graph.add_vertex(vertexH)
+
+tree_graph.add_edge(Edge(4,vertexA,vertexB))
+tree_graph.add_edge(Edge(7,vertexB,vertexD))
+tree_graph.add_edge(Edge(1,vertexD,vertexE))
+tree_graph.add_edge(Edge(9,vertexB,vertexC))
+tree_graph.add_edge(Edge(2,vertexA,vertexF))
+tree_graph.add_edge(Edge(1,vertexF,vertexH))
+tree_graph.add_edge(Edge(3,vertexF,vertexH))
+
+#graph5 - disconnected graph
+disconnected_graph = Graph()
+
+disconnected_graph.add_vertex(vertexA)
+disconnected_graph.add_vertex(vertexB)
+disconnected_graph.add_vertex(vertexC)
+disconnected_graph.add_vertex(vertexD)
+disconnected_graph.add_vertex(vertexE)
+disconnected_graph.add_vertex(vertexF)
+disconnected_graph.add_vertex(vertexG)
+
+disconnected_graph.add_edge(Edge(4,vertexA,vertexB))
+disconnected_graph.add_edge(Edge(3,vertexB,vertexC))
+disconnected_graph.add_edge(Edge(2,vertexC,vertexA))
+disconnected_graph.add_edge(Edge(1,vertexD,vertexE))
+disconnected_graph.add_edge(Edge(4,vertexE,vertexF))
 
 
-"""
-print("\n")
-print("--Vertices--")
-for vertex in my_graph.get_vertices():
-     print(vertex.get_lable())
 
-print("\n")
-print("--Edges--")
-for edge in my_graph.get_edges():
-     print("weight", edge.get_weight())
-     print("edges", edge.get_vertices()[0].get_lable(), edge.get_vertices()[1].get_lable())
-     print("\n")
-"""

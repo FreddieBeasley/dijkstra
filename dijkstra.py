@@ -17,11 +17,11 @@ def getAdjacentVertices(graph:Graph, vertex:Vertex) -> list:
 """
 
 class DijkstraVertex(Vertex):
-     def __init__(self, lable, order, count):
+     def __init__(self, lable, order, count, path=None):
           super().__init__(lable)
           self.__order = order
           self.__count = count
-          self.__path = lable
+          self.__path = path
      
      def get_order(self):
           return self.__order
@@ -34,7 +34,7 @@ class DijkstraVertex(Vertex):
      
      def get_path_reverse(self):
           #logic means that path is stored in reverse
-          return self.__path[::-1]
+          return self.__path
 
      
      def update_order(self, order):
@@ -44,7 +44,7 @@ class DijkstraVertex(Vertex):
           self.__count = count
      
      def update_path(self, lable):
-          self.__path += lable
+          self.__path = lable
 
 class Queue:
      def __init__(self):
@@ -109,7 +109,8 @@ def dijkstra(graph:Graph, startVertex:Vertex, endVertex:Vertex = None) -> list:
      queue.add(DijkstraVertex(
           lable=startVertex.get_lable(),
           order=None,
-          count=0
+          count=0,
+          path=startVertex.get_lable()
      ))
 
      order = -1
@@ -141,7 +142,7 @@ def dijkstra(graph:Graph, startVertex:Vertex, endVertex:Vertex = None) -> list:
 
                     if old_count > new_count:
                          consideringDijkstraVertex.update_count(new_count)
-                         consideringDijkstraVertex.update_path(currentDijkstraItem.get_path())
+                         consideringDijkstraVertex.update_path(currentDijkstraItem.get_path() + consideringDijkstraVertex.get_lable())
 
                else:
                     discoveredDijkstraVertex = DijkstraVertex(
@@ -151,7 +152,7 @@ def dijkstra(graph:Graph, startVertex:Vertex, endVertex:Vertex = None) -> list:
                     )
 
                     queue.add(discoveredDijkstraVertex)
-                    discoveredDijkstraVertex.update_path(currentDijkstraItem.get_path())
+                    discoveredDijkstraVertex.update_path(currentDijkstraItem.get_path() + discoveredDijkstraVertex.get_lable())
                
           '''
           for edge in graph.get_edges():
@@ -183,10 +184,46 @@ def dijkstra(graph:Graph, startVertex:Vertex, endVertex:Vertex = None) -> list:
      
      return [[f"vertex: {item.get_lable()}", f"order: {item.get_order()}", f"cost: {item.get_count()}", f"path: {item.get_path_reverse()}"] for item in queue.get_resolved()]
 
+'''
+if you pass in a vertex that it not in the graph as the end vertex (e.g. linear graph test 1 where there is no vertex g), due to the lookUp_vertex returning None when the vertex cannot be found, None is passed in as the endVertex and therefore the dijkstra algorithm will just find the shortest path to all other nodes.
+'''
 
+# --- Test 1: my_graph ---
+print("\n--- Test 1: my_graph ---")
 print(dijkstra(my_graph, vertexA, vertexC))
 print("\n")
 print(dijkstra(my_graph, vertexA))
 print("\n")
 print(dijkstra(my_graph, vertexB))
 
+# --- Test 2: circular_graph ---
+print("\n--- Test 2: circular_graph ---")
+print(dijkstra(circular_graph, vertexA, vertexE))
+print("\n")
+print(dijkstra(circular_graph, vertexC))
+print("\n")
+print(dijkstra(circular_graph, vertexF))
+
+# --- Test 3: linear_graph ---
+print("\n--- Test 3: linear_graph ---")
+print(dijkstra(linear_graph, vertexA, vertexG))
+print("\n")
+print(dijkstra(linear_graph, vertexD))
+print("\n")
+print(dijkstra(linear_graph, vertexB))
+
+# --- Test 4: tree_graph ---
+print("\n--- Test 4: tree_graph ---")
+print(dijkstra(tree_graph, vertexA, vertexE))
+print("\n")
+print(dijkstra(tree_graph, vertexB))
+print("\n")
+print(dijkstra(tree_graph, vertexC))
+
+# --- Test 5: disconnected_graph ---
+print("\n--- Test 5: disconnected_graph ---")
+print(dijkstra(disconnected_graph, vertexA, vertexH))
+print("\n")
+print(dijkstra(disconnected_graph, vertexA))
+print("\n")
+print(dijkstra(disconnected_graph, vertexH))
