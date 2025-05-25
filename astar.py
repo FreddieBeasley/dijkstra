@@ -1,8 +1,8 @@
 from dijkstra import *
 
 class AstarVertex(Vertex):
-     def __init__(self, lable, heuristic=None):
-          Vertex.__init__(self,lable)
+     def __init__(self, label, heuristic=None):
+          Vertex.__init__(self,label)
 
           self.__heuristic = heuristic
      
@@ -15,19 +15,129 @@ class AstarVertex(Vertex):
 class AstarGraph(Graph):
      def __init__(self):
           super().__init__()
-
-          #self.__heuristic_list = {}
-
-     #def get_heuristic_list(self):
-          #return self.__heuristic_list
      
      def add_vertex(self, vertex:AstarVertex, heuristic:int):
           super().add_vertex(vertex)
 
           vertex.set_heuristic(heuristic)
-          #self.__heuristic_list[vertex.get_lable()] = heuristic
 
-def init_graphs():
+"""
+class AstarGraph(Graph):
+     def __init__(self):
+          super().__init__()
+
+          self.__heuristic_list = {}
+
+     def get_heuristic_list(self):
+          return self.__heuristic_list
+     
+     def add_vertex(self, vertex:AstarVertex, heuristic:int):
+          super().add_vertex(vertex)
+
+          vertex.set_heuristic(heuristic)
+          self.__heuristic_list[vertex.get_label()] = heuristic
+"""
+
+#combination of AsterVertex and DijkstraVertex therefore has cost, path but also heuristic
+class AstarDijkstraVertex(AstarVertex, DijkstraVertex):
+     def __init__(self, label, order, cost, heuristic, path=None):
+          AstarVertex.__init__(self,label, heuristic)
+          DijkstraVertex.__init__(self, label, order, cost, path)
+
+class AstarQueue(Queue):
+     def __init__(self):
+          super().__init__()
+
+     def pop(self): #returns astarVertex with the lowest working value
+          lowest = 1000
+          
+          for astarDijkstraVertex in self.get_discovered():
+               currentCost = astarDijkstraVertex.get_cost()
+               heuristicValue = astarDijkstraVertex.get_heuristic()
+
+               workingValue = currentCost + heuristicValue
+
+               if workingValue < lowest:
+                    lowest = workingValue
+                    returnItem = astarDijkstraVertex
+          
+          self.add_resolved(returnItem)
+          self.remove(returnItem)
+          return returnItem
+     
+def astar(graph:AstarGraph, startVertex:AstarVertex, endVertex:AstarVertex) -> list:
+
+     #Validation
+     if startVertex not in graph.get_vertices():
+          return []
+     
+     if endVertex not in graph.get_vertices():
+          return []
+     
+     #initialising queue
+     queue = AstarQueue()
+     queue.add(AstarDijkstraVertex(
+          label=startVertex.get_label(),
+          order=None,
+          cost=0,
+          heuristic=startVertex.get_heuristic(),
+          path=startVertex.get_label()
+     ))
+
+     order = -1
+
+     while True:
+          order += 1
+
+          #Base case - all discovered vertices resolved
+          if len(queue) == 0:
+               break
+
+          currentAstarVertex = queue.pop()
+          currentAstarVertex.update_order(order)
+
+          #Base case - specific vertex is next to resolve
+          if currentAstarVertex.get_label() == endVertex.get_label():
+               break
+          
+          for vertex_label, path_weight in graph.get_adjacency_list()[currentAstarVertex.get_label()]:
+
+               if queue.lookUp_dijkstraVertex_resolved(vertex_label) is not None:
+                    continue
+
+               elif queue.lookUp_dijkstraVertex(vertex_label) is not None:
+                    consideringAstarVertex = queue.lookUp_dijkstraVertex(vertex_label)
+
+                    new_cost = currentAstarVertex.get_cost() + path_weight
+                    old_cost = consideringAstarVertex.get_cost()
+
+                    if old_cost > new_cost:
+                         consideringAstarVertex.update_cost(new_cost)
+                         consideringAstarVertex.update_path(currentAstarVertex.get_path() + consideringAstarVertex.get_label())
+
+               else:
+                    discoveredAstarVertex = AstarDijkstraVertex(
+                         label=vertex_label,
+                         order=None,
+                         cost=currentAstarVertex.get_cost() + path_weight,
+                         heuristic= graph.lookUp_vertex(vertex_label).get_heuristic()
+                    )
+
+                    queue.add(discoveredAstarVertex)
+                    discoveredAstarVertex.update_path(currentAstarVertex.get_path() + discoveredAstarVertex.get_label())
+               
+
+     if queue.lookUp_dijkstraVertex_resolved(endVertex.get_label()) == None:
+          return []
+     
+     endVertexAstar = queue.lookUp_dijkstraVertex_resolved(endVertex.get_label())
+
+     return [f"vertex: {endVertexAstar.get_label()}", f"order: {endVertexAstar.get_order()}", f"cost: {endVertexAstar.get_cost()}", f"path: {endVertexAstar.get_path()}"]
+
+
+def test_astar():
+     #----graphs-for-testing----
+
      #vertices
      vertexA = AstarVertex("a")
      vertexB = AstarVertex("b")
@@ -125,109 +235,7 @@ def init_graphs():
      disconnected_graph.add_edge(Edge(1,vertexD,vertexE))
      disconnected_graph.add_edge(Edge(4,vertexE,vertexF))
 
-     return vertexA, vertexB, vertexC, vertexD, vertexE, vertexF, vertexG, vertexH, my_graph, circular_graph, linear_graph, tree_graph, disconnected_graph
-
-vertexA, vertexB, vertexC, vertexD, vertexE, vertexF, vertexG, vertexH, my_graph, circular_graph, linear_graph, tree_graph, disconnected_graph = init_graphs()
-
-#combination of asterVertex and Dijkstra vertex therefore has count and path but also heuristic
-class AstarDijkstraVertex(AstarVertex, DijkstraVertex):
-     def __init__(self, lable, order, count, heuristic, path=None):
-          AstarVertex.__init__(self,lable, heuristic)
-          DijkstraVertex.__init__(self, lable, order, count, path)
-
-class AstarQueue(Queue):
-     def __init__(self):
-          super().__init__()
-
-     def pop(self): #returns astarVertex with the lowest working value
-          lowest = 1000
-          
-          for astarDijkstraVertex in self.get_discovered():
-               currentCost = astarDijkstraVertex.get_count()
-               heuristicValue = astarDijkstraVertex.get_heuristic()
-
-               workingValue = currentCost + heuristicValue
-
-               if workingValue < lowest:
-                    lowest = workingValue
-                    returnItem = astarDijkstraVertex
-          
-          self.add_resolved(returnItem)
-          self.remove(returnItem)
-          return returnItem
-     
-def astar(graph:AstarGraph, startVertex:AstarVertex, endVertex:AstarVertex) -> list:
-
-     #Validation
-     if startVertex not in graph.get_vertices():
-          return []
-     
-     if endVertex not in graph.get_vertices():
-          return []
-     
-     #initialising queue
-     queue = AstarQueue()
-     queue.add(AstarDijkstraVertex(
-          lable=startVertex.get_lable(),
-          order=None,
-          count=0,
-          heuristic=startVertex.get_heuristic(),
-          path=startVertex.get_lable()
-     ))
-
-     order = -1
-
-     while True:
-          order += 1
-
-          #Base case - all discovered vertices resolved
-          if len(queue) == 0:
-               break
-
-          currentAstarVertex = queue.pop()
-          currentAstarVertex.update_order(order)
-
-          #Base case - specific vertex is next to resolve
-          if currentAstarVertex.get_lable() == endVertex.get_lable():
-               break
-          
-          for vertex_lable, path_weight in graph.get_adjacency_list()[currentAstarVertex.get_lable()]:
-
-               if queue.lookUp_dijkstraVertex_resolved(vertex_lable) is not None:
-                    continue
-
-               elif queue.lookUp_dijkstraVertex(vertex_lable) is not None:
-                    consideringAstarVertex = queue.lookUp_dijkstraVertex(vertex_lable)
-
-                    new_count = currentAstarVertex.get_count() + path_weight
-                    old_count = consideringAstarVertex.get_count()
-
-                    if old_count > new_count:
-                         consideringAstarVertex.update_count(new_count)
-                         consideringAstarVertex.update_path(currentAstarVertex.get_path() + consideringAstarVertex.get_lable())
-
-               else:
-                    discoveredAstarVertex = AstarDijkstraVertex(
-                         lable=vertex_lable,
-                         order=None,
-                         count=currentAstarVertex.get_count() + path_weight,
-                         heuristic= graph.lookUp_vertex(vertex_lable).get_heuristic()
-                    )
-
-                    queue.add(discoveredAstarVertex)
-                    discoveredAstarVertex.update_path(currentAstarVertex.get_path() + discoveredAstarVertex.get_lable())
-               
-
-     if queue.lookUp_dijkstraVertex_resolved(endVertex.get_lable()) == None:
-          return []
-     
-     endVertexAstar = queue.lookUp_dijkstraVertex_resolved(endVertex.get_lable())
-
-     return [f"vertex: {endVertexAstar.get_lable()}", f"order: {endVertexAstar.get_order()}", f"cost: {endVertexAstar.get_count()}", f"path: {endVertexAstar.get_path()}"]
-
-
-# --- Test 1: my_graph ---
-def test_astar():
+     # --- Test 1: my_graph ---
      print("\n--- Test 1: my_graph ---")
      print(astar(my_graph, vertexE, vertexA))
      print("\n")
