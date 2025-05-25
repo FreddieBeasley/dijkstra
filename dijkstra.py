@@ -136,6 +136,9 @@ def dijkstra(graph:Graph, startVertex:Vertex, endVertex:Vertex = None) -> list:
                     discoveredDijkstraVertex.update_path(currentDijkstraItem.get_path() + discoveredDijkstraVertex.get_lable())
                
      if specific:
+          if queue.lookUp_dijkstraVertex_resolved(endVertex.get_lable()) == None: #end vertex has not been found
+               return []
+          
           endVertexDijkstra = queue.lookUp_dijkstraVertex_resolved(endVertex.get_lable())
           return [f"vertex: {endVertexDijkstra.get_lable()}", f"order: {endVertexDijkstra.get_order()}", f"cost: {endVertexDijkstra.get_count()}", f"path: {endVertexDijkstra.get_path()}"]
      
@@ -175,7 +178,7 @@ print(dijkstra(tree_graph, vertexC))
 
 # --- Test 5: disconnected_graph ---
 print("\n--- Test 5: disconnected_graph ---")
-print(dijkstra(disconnected_graph, vertexA, vertexH))
+print(dijkstra(disconnected_graph, vertexA, vertexF))
 print("\n")
 print(dijkstra(disconnected_graph, vertexA))
 print("\n")

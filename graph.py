@@ -142,7 +142,7 @@ tree_graph.add_edge(Edge(1,vertexD,vertexE))
 tree_graph.add_edge(Edge(9,vertexB,vertexC))
 tree_graph.add_edge(Edge(2,vertexA,vertexF))
 tree_graph.add_edge(Edge(1,vertexF,vertexH))
-tree_graph.add_edge(Edge(3,vertexF,vertexH))
+tree_graph.add_edge(Edge(3,vertexF,vertexG))
 
 #graph5 - disconnected graph
 disconnected_graph = Graph()
