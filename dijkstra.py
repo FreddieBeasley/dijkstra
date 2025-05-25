@@ -90,12 +90,20 @@ class Queue:
 
 
 #returns the shortest paths to all vertices
-def generalDijkstra(graph:Graph, startVertex:Vertex) -> list:
+def dijkstra(graph:Graph, startVertex:Vertex, endVertex:Vertex = None) -> list:
+
+     #Checking is an endVertex has been entered
+     specific = False
+     if endVertex != None:
+          specific = True
 
      #validation
      if startVertex not in graph.get_vertices():
           return []
      
+     if endVertex not in graph.get_vertices() and specific:
+          return []
+
      #initialising queue
      queue = Queue()
      queue.add(DijkstraVertex(
@@ -108,12 +116,17 @@ def generalDijkstra(graph:Graph, startVertex:Vertex) -> list:
 
      while True:
           order += 1
-          #Base case
-          if len(queue) == 0: #all vertices checked
+          #Base case - all vertices resolved
+          if len(queue) == 0:
                break
 
           currentDijkstraItem = queue.pop()
           currentDijkstraItem.update_order(order)
+
+          #Base base - specific vertex is next to resolve
+          if specific:
+               if currentDijkstraItem.get_lable() == endVertex.get_lable():
+                    break
 
           for vertex_lable, path_weight in graph.get_adjacency_list()[currentDijkstraItem.get_lable()]:
                
@@ -164,88 +177,16 @@ def generalDijkstra(graph:Graph, startVertex:Vertex) -> list:
                     consideringDijkstraItem.update_count(newRouteCost)
                     consideringDijkstraItem.update_path(currentDijkstraItem.get_path())
                '''
-
+     if specific:
+          endVertexDijkstra = queue.lookUp_dijkstraVertex_resolved(endVertex.get_lable())
+          return [f"vertex: {endVertexDijkstra.get_lable()}", f"order: {endVertexDijkstra.get_order()}", f"cost: {endVertexDijkstra.get_count()}", f"path: {endVertexDijkstra.get_path_reverse()}"]
+     
      return [[f"vertex: {item.get_lable()}", f"order: {item.get_order()}", f"cost: {item.get_count()}", f"path: {item.get_path_reverse()}"] for item in queue.get_resolved()]
 
-#returns the shortest path to a specific vertex
-def specificDijkstra(graph:Graph, startVertex:Vertex, endVertex:Vertex) -> list:
 
-     #validation
-     if startVertex not in graph.get_vertices():
-          return []
-     
-     if endVertex not in graph.get_vertices():
-          return []
-     
-     #initialising queue
-     queue = Queue()
-     queue.add(DijkstraVertex(
-          lable=startVertex.get_lable(),
-          order=None,
-          count=0
-     ))
-
-     order = -1
-
-     while True:
-          order += 1
-          
-          currentDijkstraItem = queue.pop()
-          currentDijkstraItem.update_order(order)
-
-          #Base case
-          if currentDijkstraItem.get_lable() == endVertex.get_lable(): #specific vertex is next to resolve
-               break
-
-          
-
-          for vertex_lable, path_weight in graph.get_adjacency_list()[currentDijkstraItem.get_lable()]:
-               
-               if queue.lookUp_dijkstraVertex_resolved(vertex_lable) is not None:
-                    continue
-               
-               elif queue.lookUp_dijkstraVertex(vertex_lable) is not None:
-                    consideringDijkstraVertex = queue.lookUp_dijkstraVertex(vertex_lable)
-
-                    new_count = currentDijkstraItem.get_count() + path_weight
-                    old_count = consideringDijkstraVertex.get_count()
-
-                    if old_count > new_count:
-                         consideringDijkstraVertex.update_count(new_count)
-                         consideringDijkstraVertex.update_path(currentDijkstraItem.get_path())
-
-               else:
-                    discoveredDijkstraVertex = DijkstraVertex(
-                         lable=vertex_lable,
-                         order=None,
-                         count=currentDijkstraItem.get_count() + path_weight
-                    )
-
-                    queue.add(discoveredDijkstraVertex)
-                    discoveredDijkstraVertex.update_path(currentDijkstraItem.get_path())
-
-     endVertexDijkstra = queue.lookUp_dijkstraVertex_resolved(endVertex.get_lable())
-
-     return [f"vertex: {endVertexDijkstra.get_lable()}", f"order: {endVertexDijkstra.get_order()}", f"cost: {endVertexDijkstra.get_count()}", f"path: {endVertexDijkstra.get_path_reverse()}"]
-
-
-print(specificDijkstra(my_graph, vertexA, vertexE))
+print(dijkstra(my_graph, vertexA, vertexC))
 print("\n")
-print(generalDijkstra(my_graph, vertexA))
+print(dijkstra(my_graph, vertexA))
 print("\n")
-print(generalDijkstra(my_graph, vertexB))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print(dijkstra(my_graph, vertexB))
 
